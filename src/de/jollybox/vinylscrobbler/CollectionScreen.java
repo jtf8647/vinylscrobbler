@@ -58,9 +58,8 @@ public class CollectionScreen extends Activity {
 			setContentView(R.layout.collection_grid);
 			mGrid = (GridView) findViewById(R.id.results_grid);
 			mGrid.setVerticalFadingEdgeEnabled(true);
-			//change column count when in landscape
-			if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
-				mGrid.setNumColumns(5);
+			//change column count depending on horizontal resolution, images look good around 150dp
+			mGrid.setNumColumns(Math.round((float)getResources().getConfiguration().screenWidthDp/(float)150));
 		} else {
 			setContentView(R.layout.collection);
 			mList = (ListView) findViewById(R.id.results_list);

@@ -17,6 +17,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.scribe.model.OAuthRequest;
+import org.scribe.model.Response;
+import org.scribe.model.Verb;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -34,9 +37,12 @@ public final class ImageDownloader {
 	private static Map<String, SoftReference<Bitmap>> cCache = new ConcurrentHashMap<String, SoftReference<Bitmap>>();
 
 	private Context mContext;
+	private Discogs mDiscogsAuth;
 
 	public ImageDownloader(Context context) {
 		mContext = context;
+		//initialize new Discogs object for OAuth
+		mDiscogsAuth = new Discogs(context);
 	}
 
 	public void getBitmap(String url, ImageView img) {
@@ -102,18 +108,18 @@ public final class ImageDownloader {
 		protected Bitmap doInBackground(String... params) {
 			String url = params[0];
 			mThumbUri = url;
-			InputStream dataStream;
-			Bitmap result;
+			Bitmap result=null;
 
-			HttpUriRequest request = new HttpGet(url);
 			try {
-				dataStream = Helper.doRequest(mContext, request);
-			} catch (Exception io_exc) {
-				//catches broken network and missing thumbnails
-				// TODO: handle.
+				/*Discogs requires OAuth for image queries now*/
+				OAuthRequest request = new OAuthRequest(Verb.GET, url);
+				mDiscogsAuth.signRequest(request);
+				Response response = request.send();
+				result = BitmapFactory.decodeStream(response.getStream());
+			} catch(Exception e) {
 				return null;
 			}
-			result = BitmapFactory.decodeStream(dataStream);
+			
 			// yay. Cache this.
 			if (result != null) {
 				cCache.put(url, new SoftReference<Bitmap>(result));
