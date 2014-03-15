@@ -124,7 +124,7 @@ public class Discogs extends ContextWrapper {
 	
 	public void onCollectionChanged(final ResultWaiter waiter) {
 		final String query_string = "/users/" + getUser() + "/collection/folders/0/releases?per_page=1&page=1&sort=added&sort_order=desc";
-		DiscogsQuery collectionstatquery = new DiscogsQuery.WithAlertDialog(this, false, this) {
+		DiscogsQuery collectionstatquery = new DiscogsQuery(this, false, this) {
 			@Override
 			protected void onResult(JSONObject result) {
 				try {
@@ -155,6 +155,11 @@ public class Discogs extends ContextWrapper {
 				} catch (JSONException json_exc) {
 					errorMessage("Cannot comprehend data");
 				}
+			}
+
+			@Override
+			protected void errorMessage(String message) {
+				// Since this is a background query, ignore
 			}
 		};
 		collectionstatquery.hideProgress();
@@ -196,7 +201,7 @@ public class Discogs extends ContextWrapper {
 		mAccessToken = accessToken;
 		mAccessSecret = accessSecret;
 		String query_string = "/oauth/identity";
-		DiscogsQuery q = new DiscogsQuery.WithAlertDialog(this, false, this) {
+		DiscogsQuery q = new DiscogsQuery(this, false, this) {
 			@Override
 			protected void onResult(JSONObject result) {
 				String username;
@@ -215,8 +220,14 @@ public class Discogs extends ContextWrapper {
 					}
 				}
 			}
+
+			@Override
+			protected void errorMessage(String message) {
+				// TODO Auto-generated method stub
+				
+			}
 		};
-		
+		q.hideProgress();
 		q.execute(query_string);
 	}
 

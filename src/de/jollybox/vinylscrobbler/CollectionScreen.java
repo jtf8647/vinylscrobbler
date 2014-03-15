@@ -137,7 +137,7 @@ public class CollectionScreen extends Activity {
 	private void getCollection(final JSONArray currResults, final int page) {
 		final String query_string = "/users/" + mDiscogs.getUser() + "/collection/folders/0/releases?sort=artist&per_page=100&page=" + page;
 		// cache this query only if we don't have local caching enabled, else this is only called when there are updates, and we might miss them
-		DiscogsQuery query = new DiscogsQuery.WithAlertDialog(this, !mDiscogs.isCacheCollection(), mDiscogs) {
+		DiscogsQuery query = new DiscogsQuery(this, !mDiscogs.isCacheCollection(), mDiscogs) {
 			@Override
 			protected void onResult(JSONObject result) {
 				try {
@@ -186,7 +186,14 @@ public class CollectionScreen extends Activity {
 					errorMessage("Cannot comprehend data");
 				}
 			}
+
+			@Override
+			protected void errorMessage(String message) {
+				// TODO Auto-generated method stub
+				
+			}
 		};
+		query.hideProgress();
 		query.execute(query_string);
 	}
 
